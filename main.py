@@ -37,13 +37,6 @@ class Eng(object):
     def draw_board(self):
         the_board = pygame.Rect(0, 0, WIDTH, HEIGHT)
         self.screen.blit(self.textures['board'], the_board)
-        if self.game.a != '':
-            self.drawText(self.game.a, self.screen, 68, 10)
-        else:
-            if self.game.player == 2:
-                self.drawText('ход чёрных', self.screen, 39, 40)
-            else:
-                self.drawText('ход белых', self.screen, 39, 40)
         for i in range(0, 8):
             for j in range(0, 8):
                 player = self.game.board[i][j]
@@ -54,6 +47,13 @@ class Eng(object):
                 elif player == 2:
                     self.screen.blit(self.textures['black'], counter)
 
+                if self.game.a != '':
+                    self.drawText(self.game.a, self.screen, 38, 10)
+                else:
+                    if self.game.player == 2:
+                        self.drawText('ход чёрных', self.screen, 39, 40)
+                    else:
+                        self.drawText('ход белых', self.screen, 39, 40)
                 if self.game.victory == 1:
                     self.drawText('Победа белых', self.screen, 38, 10)
                 elif self.game.victory == 2:

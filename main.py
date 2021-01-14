@@ -1,11 +1,12 @@
-import pygame, sys
-import board
-
+import pygame
+import sys
+import board1
 
 size = WIDTH, HEIGHT = 800, 800
 tile_size = 100
 offset_size = 10
 FPS = 50
+
 
 def terminate():
     pygame.quit()
@@ -24,15 +25,14 @@ class Eng(object):
         self.textures['board'] = pygame.image.load('data/board.png')
         self.textures['black'] = pygame.image.load('data/black.png')
         self.textures['white'] = pygame.image.load('data/white.png')
-        self.game = board.Board()
+        self.game = board1.Board()
         self.draw_board()
 
-    def drawText(self, text, surface, x, y):
+    def drawtext(self, text, surface, x, y):
         textobject = self.font.render(text, 1, (0, 0, 0))
         textrect = textobject.get_rect()
         textrect.topleft = (x, y)
         surface.blit(textobject, textrect)
-
 
     def draw_board(self):
         the_board = pygame.Rect(0, 0, WIDTH, HEIGHT)
@@ -47,19 +47,23 @@ class Eng(object):
                 elif player == 2:
                     self.screen.blit(self.textures['black'], counter)
 
-                if self.game.a != '':
-                    self.drawText(self.game.a, self.screen, 38, 10)
-                else:
-                    if self.game.player == 2:
-                        self.drawText('ход чёрных', self.screen, 39, 40)
+                if self.game.victory == 0:
+                    if self.game.a != '':
+                        self.drawtext(self.game.a, self.screen, 38, 10)
                     else:
-                        self.drawText('ход белых', self.screen, 39, 40)
+                        if self.game.player == 2:
+                            self.drawtext('ход чёрных', self.screen, 39, 40)
+                        else:
+                            self.drawtext('ход белых', self.screen, 39, 40)
+                    all_tiles = [item for sublist in self.game.board for item in sublist]
+                    white_tiles = sum(1 for tile in all_tiles if tile == 1)
+                    black_tiles = sum(1 for tile in all_tiles if tile == 2)
+                    self.drawtext('белые/черные', self.screen, 520, 20)
+                    self.drawtext(str(white_tiles)+'/'+str(black_tiles), self.screen, 609, 60)
                 if self.game.victory == 1:
-                    self.drawText('Победа белых', self.screen, 38, 10)
+                    self.drawtext('Победа белых', self.screen, 38, 10)
                 elif self.game.victory == 2:
-                    self.drawText('Победа чёрных', self.screen, 39, 10)
-                elif self.game.victory == -1:
-                    self.drawText('Ничья', self.screen, 38, 10)
+                    self.drawtext('Победа чёрных', self.screen, 39, 10)
                 pygame.display.update()
 
     def mouse_click(self, event):
@@ -68,11 +72,10 @@ class Eng(object):
         tile_y = int(y // tile_size)
         try:
             self.game.player_move(tile_x, tile_y)
-        except board.Illegal_move as e:
-            print("Illegal move")
+        except board1.Illegal_move as e:
+            print("Невозможный ход")
         except Exception as e:
             raise
-
 
     def start(self):
         self.__init__()
@@ -84,6 +87,10 @@ class Eng(object):
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     self.mouse_click(event)
+
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_F5:
+                        return self.start()
 
             if self.game.has_changed:
                 self.draw_board()

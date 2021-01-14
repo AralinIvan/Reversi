@@ -1,10 +1,21 @@
-class Illegal_move(Exception):
+class Game_error(Exception):
+    """Errors related to the game in general"""
+    pass
+
+
+class Illegal_move(Game_error):
+    """Errors from illegal moves"""
+    pass
+
+
+class Game_rule_error(Game_error):
+    """Errors that arise from rule issues"""
     pass
 
 
 class Board(object):
     def __init__(self):
-        super(Board, self).__init__()
+        super().__init__()
         self.turn = 1
         self.a = ''
         self.player = 2
@@ -16,22 +27,23 @@ class Board(object):
         self.board[4][4] = 1
         self.has_changed = True
 
-
-
     def player_move(self, x, y):
         if self.victory != 0:
             return
         self.perform_move(x, y)
 
-    def perform_move(self, x, y):
+    def perform_move(self, x, y, bot=False):
         if self.board[x][y] != 0:
-            raise Illegal_move("Player {0} tried to place a tile at {1},{2} but it is already occupied by {3}".format(
+            return Illegal_move("Player {0} tried to place a tile at {1},{2} but it is already occupied by {3}".format(
                 self.player,
                 x, y,
                 self.board[x][y]
             ))
 
-        self.place_piece(x, y)
+        if bot:
+            self.place_piece(x, y, False, True)
+        else:
+            self.place_piece(x, y)
         all_tiles = [item for sublist in self.board for item in sublist]
         empty_tiles = sum(1 for tile in all_tiles if tile == 0)
         white_tiles = sum(1 for tile in all_tiles if tile == 1)
@@ -41,10 +53,20 @@ class Board(object):
             return
         self.player = 3 - self.player
         move_found = self.move_can_be_made()
+        all_tiles = [item for sublist in self.board for item in sublist]
+        empty_tiles = sum(1 for tile in all_tiles if tile == 0)
+        white_tiles = sum(1 for tile in all_tiles if tile == 1)
+        black_tiles = sum(1 for tile in all_tiles if tile == 2)
         if not move_found:
-            self.a = 'игрок ' + str(self.player) + ' не имеет возможных ходов ход переходит игроку ' + str(3 - self.player)
+            self.a = 'игрок ' + str(self.player) + ' не имеет возможных ходов ход переходит игроку ' + str(
+                3 - self.player)
             self.player = 3 - self.player
+            if not bot and (white_tiles > 0 or black_tiles > 0 or empty_tiles > 0):
+                print('2')
+                self.bot(x, y)
         self.has_changed = True
+        if not bot and (white_tiles > 0 or black_tiles > 0 or empty_tiles > 0):
+            self.bot(x, y)
 
     def move_can_be_made(self):
         move_found = False
@@ -60,8 +82,25 @@ class Board(object):
 
         return move_found
 
-    def place_piece(self, x, y, live_mode=True):
-        if live_mode:
+    def bot(self, px, py):
+        counter = 1
+        possible_moves = {}
+        for x in range(0, 8):
+            for y in range(0, 8):
+                counter += 1
+                count = self.place_piece(x, y, False)
+                if count and self.board[x][y] == 0:
+                    possible_moves[count] = [x, y]
+                    # print(y+1, x+1)
+        print(possible_moves)
+        if possible_moves:
+            ms = max(possible_moves.keys())
+            print(ms)
+            print(possible_moves[ms])
+            self.perform_move(possible_moves[ms][0], possible_moves[ms][1], True)
+
+    def place_piece(self, x, y, live_mode=True, bot_mode=False):
+        if live_mode or bot_mode:
             self.board[x][y] = self.player
         change_count = 0
         column = self.board[x]
@@ -82,7 +121,7 @@ class Board(object):
                     changes.append(i)
             if search_complete:
                 change_count += len(changes)
-                if live_mode:
+                if live_mode or bot_mode:
                     for i in changes:
                         self.board[x][i] = self.player
 
@@ -102,7 +141,7 @@ class Board(object):
                     changes.append(i)
             if search_complete:
                 change_count += len(changes)
-                if live_mode:
+                if live_mode or bot_mode:
                     for i in changes:
                         self.board[x][i] = self.player
 
@@ -121,7 +160,7 @@ class Board(object):
                     changes.append(i)
             if search_complete:
                 change_count += len(changes)
-                if live_mode:
+                if live_mode or bot_mode:
                     for i in changes:
                         self.board[i][y] = self.player
 
@@ -140,7 +179,7 @@ class Board(object):
                     changes.append(i)
             if search_complete:
                 change_count += len(changes)
-                if live_mode:
+                if live_mode or bot_mode:
                     for i in changes:
                         self.board[i][y] = self.player
 
@@ -179,7 +218,7 @@ class Board(object):
                     changes.append((lx, ly))
             if search_complete:
                 change_count += len(changes)
-                if live_mode:
+                if live_mode or bot_mode:
                     for i, j in changes:
                         self.board[i][j] = self.player
         if self.player in bl_tr_diagonal:
@@ -204,7 +243,7 @@ class Board(object):
                     changes.append((lx, ly))
             if search_complete:
                 change_count += len(changes)
-                if live_mode:
+                if live_mode or bot_mode:
                     for i, j in changes:
                         self.board[i][j] = self.player
         if self.player in br_tl_diagonal:
@@ -227,7 +266,7 @@ class Board(object):
                     changes.append((lx, ly))
             if search_complete:
                 change_count += len(changes)
-                if live_mode:
+                if live_mode or bot_mode:
                     for i, j in changes:
                         self.board[i][j] = self.player
 
@@ -251,12 +290,15 @@ class Board(object):
                     changes.append((lx, ly))
             if search_complete:
                 change_count += len(changes)
-                if live_mode:
+                if live_mode or bot_mode:
                     for i, j in changes:
                         self.board[i][j] = self.player
         if change_count == 0 and live_mode:
             self.board[x][y] = 0
-            raise Illegal_move()
+            raise Illegal_move("Player {0} tried to place a tile at {1},{2} but that will result in 0 flips".format(
+                self.player,
+                x, y,
+            ))
         return change_count
 
     def end_game(self):

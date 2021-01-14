@@ -1,15 +1,4 @@
-class Game_error(Exception):
-    """Errors related to the game in general"""
-    pass
-
-
-class Illegal_move(Game_error):
-    """Errors from illegal moves"""
-    pass
-
-
-class Game_rule_error(Game_error):
-    """Errors that arise from rule issues"""
+class Illegal_move(Exception):
     pass
 
 
@@ -34,12 +23,7 @@ class Board(object):
 
     def perform_move(self, x, y, bot=False):
         if self.board[x][y] != 0:
-            return Illegal_move("Player {0} tried to place a tile at {1},{2} but it is already occupied by {3}".format(
-                self.player,
-                x, y,
-                self.board[x][y]
-            ))
-
+            return Illegal_move()
         if bot:
             self.place_piece(x, y, False, True)
         else:
@@ -295,10 +279,7 @@ class Board(object):
                         self.board[i][j] = self.player
         if change_count == 0 and live_mode:
             self.board[x][y] = 0
-            raise Illegal_move("Player {0} tried to place a tile at {1},{2} but that will result in 0 flips".format(
-                self.player,
-                x, y,
-            ))
+            raise Illegal_move()
         return change_count
 
     def end_game(self):

@@ -1,6 +1,10 @@
 import pygame
 import sys
 import board1
+import board
+import random
+import pygame.sprite
+import particle
 
 size = WIDTH, HEIGHT = 800, 800
 tile_size = 100
@@ -17,10 +21,12 @@ class Eng(object):
     def __init__(self):
         super(Eng, self).__init__()
         pygame.init()
+        self.q = 0
         self.font = pygame.font.SysFont('arial', 48)
         self.textures = {}
         self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode(size)
+        self.screen2 = pygame.Surface(size)
         pygame.display.set_caption('Реверси')
         self.textures['board'] = pygame.image.load('data/board.png')
         self.textures['black'] = pygame.image.load('data/black.png')
@@ -62,9 +68,31 @@ class Eng(object):
                     self.drawtext(str(white_tiles)+'/'+str(black_tiles), self.screen, 609, 60)
                 if self.game.victory == 1:
                     self.drawtext('Победа белых', self.screen, 38, 10)
+                    if self.q == 1:
+                        self.create_particles()
+                    self.q += 1
                 elif self.game.victory == 2:
                     self.drawtext('Победа чёрных', self.screen, 39, 10)
-                pygame.display.update()
+                    if self.q == 0:
+                        self.create_particles()
+                    self.q += 1
+                pygame.display.flip()
+
+
+    def create_particles(self):
+        self.clock.tick(50)
+        self.screen2 = self.screen.copy()
+        particle_count = 300
+        numbers = range(-5, 6)
+        for i in range(particle_count):
+            particle.Particle((random.randint(0, 800), random.randint(0, 200)), random.choice(numbers), random.choice(numbers))
+        for i in range(100):
+            particle.all_sprites.update()
+            self.screen.blit(self.screen2, (0, 0))
+            particle.all_sprites.draw(self.screen)
+            pygame.display.flip()
+            self.clock.tick(50)
+
 
     def mouse_click(self, event):
         x, y = event.pos
@@ -74,12 +102,15 @@ class Eng(object):
             self.game.player_move(tile_x, tile_y)
         except board1.Illegal_move as e:
             print("Невозможный ход")
+        except board.Illegal_move as e:
+            print("Невозможный ход")
         except Exception as e:
             raise
 
+
     def start(self):
-        self.__init__()
         self.game.__init__()
+        self.s = 0
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -87,17 +118,44 @@ class Eng(object):
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     self.mouse_click(event)
-
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_F5:
+                        self.game.__init__()
                         return self.start()
+                    elif event.key == pygame.K_2:
+                        self.game = board.Board()
+                        self.game.__init__()
+                        return self.start()
+                    elif event.key == pygame.K_1:
+                        self.game = board1.Board()
+                        self.game.__init__()
+                        return self.start()
+                    elif event.key == pygame.K_RIGHT:
+                        self.s += 1
+                        if self.s == 5:
+                            self.s = 0
+                        print(self.s)
+                        if self.s == 0:
+                            self.textures['board'] = pygame.image.load('data/board.png')
+                            self.draw_board()
+                        elif self.s == 1:
+                            self.textures['board'] = pygame.image.load('data/board1.png')
+                            self.draw_board()
+                        elif self.s == 2:
+                            self.textures['board'] = pygame.image.load('data/board2.png')
+                            self.draw_board()
+                        elif self.s == 3:
+                            self.textures['board'] = pygame.image.load('data/board3.png')
+                            self.draw_board()
+                        elif self.s == 4:
+                            self.textures['board'] = pygame.image.load('data/board4.png')
+                            self.draw_board()
 
             if self.game.has_changed:
                 self.draw_board()
                 self.game.has_changed = False
                 self.game.a = ''
             self.clock.tick()
-
 
 if __name__ == '__main__':
     eng = Eng()

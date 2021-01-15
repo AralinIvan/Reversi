@@ -75,12 +75,8 @@ class Board(object):
                 count = self.place_piece(x, y, False)
                 if count and self.board[x][y] == 0:
                     possible_moves[count] = [x, y]
-                    # print(y+1, x+1)
-        print(possible_moves)
         if possible_moves:
             ms = max(possible_moves.keys())
-            print(ms)
-            print(possible_moves[ms])
             self.perform_move(possible_moves[ms][0], possible_moves[ms][1], True)
 
     def place_piece(self, x, y, live_mode=True, bot_mode=False):

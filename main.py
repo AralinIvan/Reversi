@@ -134,7 +134,6 @@ class Eng(object):
                         self.s += 1
                         if self.s == 5:
                             self.s = 0
-                        print(self.s)
                         if self.s == 0:
                             self.textures['board'] = pygame.image.load('data/board.png')
                             self.draw_board()

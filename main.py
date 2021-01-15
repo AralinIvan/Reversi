@@ -35,10 +35,10 @@ class Eng(object):
         self.draw_board()
 
     def drawtext(self, text, surface, x, y):
-        textobject = self.font.render(text, 1, (0, 0, 0))
-        textrect = textobject.get_rect()
-        textrect.topleft = (x, y)
-        surface.blit(textobject, textrect)
+        text_object = self.font.render(text, True, (0, 0, 0))
+        text_rect = text_object.get_rect()
+        text_rect.topleft = (x, y)
+        surface.blit(text_object, text_rect)
 
     def draw_board(self):
         the_board = pygame.Rect(0, 0, WIDTH, HEIGHT)
@@ -65,7 +65,7 @@ class Eng(object):
                     white_tiles = sum(1 for tile in all_tiles if tile == 1)
                     black_tiles = sum(1 for tile in all_tiles if tile == 2)
                     self.drawtext('белые/черные', self.screen, 520, 20)
-                    self.drawtext(str(white_tiles)+'/'+str(black_tiles), self.screen, 609, 60)
+                    self.drawtext(str(white_tiles) + '/' + str(black_tiles), self.screen, 609, 60)
                 if self.game.victory == 1:
 
                     self.drawtext('Победа белых', self.screen, 38, 10)
@@ -79,14 +79,14 @@ class Eng(object):
                     self.q += 1
                 pygame.display.flip()
 
-
     def create_particles(self):
         self.clock.tick(50)
         self.screen2 = self.screen.copy()
         particle_count = 300
         numbers = range(-5, 6)
         for i in range(particle_count):
-            particle.Particle((random.randint(0, 800), random.randint(0, 200)), random.choice(numbers), random.choice(numbers))
+            particle.Particle((random.randint(0, 800), random.randint(0, 200)), random.choice(numbers),
+                              random.choice(numbers))
         for i in range(100):
             particle.all_sprites.update()
             self.screen.blit(self.screen2, (0, 0))
@@ -94,20 +94,19 @@ class Eng(object):
             pygame.display.flip()
             self.clock.tick(50)
 
-
     def mouse_click(self, event):
         x, y = event.pos
         tile_x = int(x // tile_size)
         tile_y = int(y // tile_size)
         try:
             self.game.player_move(tile_x, tile_y)
-        except board1.Illegal_move as e:
-            print("Невозможный ход")
-        except board.Illegal_move as e:
-            print("Невозможный ход")
+        except board1.IllegalMove as e:
+            print("Невозможный ход", e)
+        except board.IllegalMove as e:
+            print("Невозможный ход", e)
         except Exception as e:
+            print(e)
             raise
-
 
     def start(self):
         self.game.__init__()
@@ -158,10 +157,7 @@ class Eng(object):
                 self.game.a = ''
             self.clock.tick()
 
+
 if __name__ == '__main__':
     eng = Eng()
     eng.start()
-
-
-
-

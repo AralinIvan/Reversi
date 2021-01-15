@@ -1,4 +1,4 @@
-class Illegal_move(Exception):
+class IllegalMove(Exception):
     pass
 
 
@@ -23,7 +23,7 @@ class Board(object):
 
     def perform_move(self, x, y, bot=False):
         if self.board[x][y] != 0:
-            return Illegal_move()
+            return IllegalMove()
         if bot:
             self.place_piece(x, y, False, True)
         else:
@@ -47,10 +47,10 @@ class Board(object):
             self.player = 3 - self.player
             if not bot and (white_tiles > 0 or black_tiles > 0 or empty_tiles > 0):
                 print('2')
-                self.bot(x, y)
+                self.bot()
         self.has_changed = True
         if not bot and (white_tiles > 0 or black_tiles > 0 or empty_tiles > 0):
-            self.bot(x, y)
+            self.bot()
 
     def move_can_be_made(self):
         move_found = False
@@ -66,7 +66,7 @@ class Board(object):
 
         return move_found
 
-    def bot(self, px, py):
+    def bot(self):
         counter = 1
         possible_moves = {}
         for x in range(0, 8):
@@ -133,7 +133,8 @@ class Board(object):
             changes = []
             search_complete = False
             for i in range(x - 1, -1, -1):
-                if search_complete: continue
+                if search_complete:
+                    continue
                 counter = row[i]
                 if counter == 0:
                     changes = []
@@ -152,7 +153,8 @@ class Board(object):
             changes = []
             search_complete = False
             for i in range(x + 1, 8, 1):
-                if search_complete: continue
+                if search_complete:
+                    continue
                 counter = row[i]
                 if counter == 0:
                     changes = []
@@ -190,8 +192,10 @@ class Board(object):
             while 0 <= lx < 8 and 0 <= ly < 8:
                 lx += 1
                 ly -= 1
-                if lx > 7 or ly < 0: break
-                if search_complete: continue
+                if lx > 7 or ly < 0:
+                    break
+                if search_complete:
+                    continue
                 counter = self.board[lx][ly]
                 if counter == 0:
                     changes = []
@@ -213,8 +217,10 @@ class Board(object):
             while 0 <= lx < 8 and 0 <= ly < 8:
                 lx -= 1
                 ly += 1
-                if lx < 0 or ly > 7: break
-                if search_complete: continue
+                if lx < 0 or ly > 7:
+                    break
+                if search_complete:
+                    continue
                 counter = self.board[lx][ly]
                 if counter == 0:
                     changes = []
@@ -238,8 +244,10 @@ class Board(object):
             while 0 <= lx < 8 and 0 <= ly < 8:
                 lx -= 1
                 ly -= 1
-                if lx < 0 or ly < 0: break
-                if search_complete: continue
+                if lx < 0 or ly < 0:
+                    break
+                if search_complete:
+                    continue
                 counter = self.board[lx][ly]
                 if counter == 0:
                     changes = []
@@ -262,8 +270,10 @@ class Board(object):
             while 0 <= lx < 8 and 0 <= ly < 8:
                 lx += 1
                 ly += 1
-                if lx > 7 or ly > 7: break
-                if search_complete: continue
+                if lx > 7 or ly > 7:
+                    break
+                if search_complete:
+                    continue
                 counter = self.board[lx][ly]
                 if counter == 0:
                     changes = []
@@ -279,7 +289,7 @@ class Board(object):
                         self.board[i][j] = self.player
         if change_count == 0 and live_mode:
             self.board[x][y] = 0
-            raise Illegal_move()
+            raise IllegalMove()
         return change_count
 
     def end_game(self):

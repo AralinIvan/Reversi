@@ -67,13 +67,14 @@ class Eng(object):
                     self.drawtext('белые/черные', self.screen, 520, 20)
                     self.drawtext(str(white_tiles)+'/'+str(black_tiles), self.screen, 609, 60)
                 if self.game.victory == 1:
+
                     self.drawtext('Победа белых', self.screen, 38, 10)
-                    if self.q == 1:
+                    if self.q == 63:
                         self.create_particles()
                     self.q += 1
                 elif self.game.victory == 2:
                     self.drawtext('Победа чёрных', self.screen, 39, 10)
-                    if self.q == 0:
+                    if self.q == 63:
                         self.create_particles()
                     self.q += 1
                 pygame.display.flip()

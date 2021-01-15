@@ -4,15 +4,13 @@ all_sprites = pygame.sprite.Group()
 
 
 class Particle(pygame.sprite.Sprite):
-
-
     def __init__(self, pos, dx, dy):
         super().__init__(all_sprites)
         self.image = pygame.image.load("data/star.png")
         self.rect = self.image.get_rect()
         self.velocity = [dx, dy]
         self.rect.x, self.rect.y = pos
-        self.gravity = 1
+        self.gravity = 0.8
 
     def update(self):
         self.velocity[1] += self.gravity
